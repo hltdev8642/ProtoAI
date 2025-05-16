@@ -545,20 +545,13 @@ else
 
 function onFileChoose(file)
 {
+   // Improved file path detection
+   var wsDir = app.LoadText("wsDir", null, "wsDir.txt");
+   openFileOld = wsDir.indexOf("//sdcard/") > -1 ||
+                 wsDir.indexOf("//storage/emulated/0/") > -1;
 
-   if(app.LoadText("wsDir", null, "wsDir.txt").indexOf("//sdcard/") > -1)
-   {
-       openFileOld = true;
-   }
-   
-   else if (app.LoadText("wsDir", null, "wsDir.txt").indexOf("//storage/emulated/0/") > -1)
-   {
-     openFileOld = true;
-   }
-   else
-   {
-     openFileOld = false;
-   }
+   // Show loading indicator for large files
+   app.ShowProgress("Loading file...");
    // alert(file)
    app.SaveText("currentFile", file, "currentFile.txt");
    //alert(file)
@@ -629,7 +622,7 @@ function onFileChoose(file)
       //filenametmp = filenametmp[filenametmp.length
    //   alert(filename3)
       app.SysExec( "cp " + file.replace('//','/')  + "  /sdcard/temp/" + filename3  + ";exit;", "su,log")
-      
+
       var mdContent2 = '![](' + ('/sdcard/temp/'+filename3)+ ')';
       var md2 = new mdParser(file, mdContent2);
       var html2 = md2.GetHtml();
@@ -695,7 +688,7 @@ function onFileChoose(file)
          edtB.SetText(app.ReadFile(file));
          return;
       }
-      
+
       if (openFileOld)
       {
         edtTxt.SetText(app.ReadFile( file ))
@@ -774,7 +767,7 @@ function onFileChoose(file)
          edtB.SetText(app.ReadFile(file));
          return;
       }
-      
+
           if (openFileOld)
       {
         edtTxt.SetText(app.ReadFile( file ))
@@ -936,7 +929,7 @@ function onFileChoose(file)
          edtB.SetText(app.ReadFile(file));
          return;
       }
-      
+
            if (openFileOld)
       {
         edtTxt.SetText(app.ReadFile( file ))
@@ -985,10 +978,10 @@ function onFileChoose(file)
       app.SaveBoolean("isProtected", false, "isProtected.txt");
       return;
    }
-} //end.onFileChoose 
+} //end.onFileChoose
 
 //------------------------------------------------------------------------
-// audioPlayer 
+// audioPlayer
 //------------------------------------------------------------------------
 function audioPlayer()
 {
@@ -1148,9 +1141,9 @@ function audioPlayer()
             break;
       } //end.switch
    } //end audioPlayer.btnstouch
-} //audioPlayer.end 
+} //audioPlayer.end
 //------------------------------------------------------------------------
-// videoPlayer 
+// videoPlayer
 //------------------------------------------------------------------------
 function videoPlayer()
 {
@@ -1297,7 +1290,7 @@ function videoPlayer()
 } //videoPlayer.end
 
 //------------------------------------------------------------------------
-// browser 
+// browser
 //------------------------------------------------------------------------
 function browser()
 {
@@ -1401,10 +1394,10 @@ function browser()
       browser.addressbar.SetText(browser.url);
       browser.laywebb.Animate("SlideFromTop");
    }
-} //end.browser 
+} //end.browser
 
 //------------------------------------------------------------------------
-// clipBar 
+// clipBar
 //------------------------------------------------------------------------
 
 app.LoadScript('Misc/beautify_js.js');
@@ -1492,14 +1485,14 @@ function clipBar()
       dlgTidySettings.AddLayout( layTidy );
       */
       /*
-      txtTidy = app.CreateTextEdit( (JSON.stringify(opt)), .45,.54,"multiline,nospell" );	
+      txtTidy = app.CreateTextEdit( (JSON.stringify(opt)), .45,.54,"multiline,nospell" );
       btnTidyStart= app.CreateButton( "Tidy Code" );
       layTidy.AddChild( txtTidy );
       layTidy.AddChild( btnTidyStart );
 
       btnTidyStart.SetOnTouch( function ()
       {
-       
+
 
       var opt = txtTidy.GetText()
       */
@@ -1559,30 +1552,20 @@ function clipBar()
          drawer.tabs.ShowTab(" PDF Viewer")
       });
       layTriggers.AddChild(btnPdf);
-      togTheme = app.CreateSpinner("Default,Dark,Light", -1, -1, "Center");
+      // Theme selection spinner
+      togTheme = app.CreateSpinner("Dark,Light", -1, -1, "Center");
       togTheme.SetBackColor("#2c2b2a");
       togTheme.SetTextColor("silver");
-      togTheme.SetOnChange(function(checked)
+
+      // Select current theme
+      var currentTheme = app.LoadText("currentTheme", "Dark", "currentTheme.txt");
+      togTheme.SelectItem(currentTheme);
+
+      togTheme.SetOnChange(function()
       {
-         switch (togTheme.GetText())
-         {
-            case "Light":
-               edtTxt.SetColorScheme("light")
-               edtTxt.SetBackAlpha(.45)
-               edtTxt.SetBackColor("silver");
-               break;
-            case "Default":
-               edtTxt.SetColorScheme("dark");
-               edtTxt.SetBackColor("#783873");
-               edtTxt.SetBackAlpha(.09)
-               break;
-            case "Dark":
-               edtTxt.SetColorScheme("light");
-               edtTxt.SetBackAlpha(.45)
-               edtTxt.SetBackColor("black", "red", "green")
-               edtTxt.SetTextColor("white")
-               break;
-         }
+         var selectedTheme = togTheme.GetText();
+         setTheme(selectedTheme);
+         app.ShowPopup(selectedTheme + " Theme Applied");
       });
       btnKeyBarConfig = app.CreateButton("⚙️⌨️⚙️", .216, null, "fontawesome");
       btnKeyBarConfig.SetOnTouch(function()
@@ -1594,29 +1577,23 @@ function clipBar()
       {
          docs.show()
       });
+      // Auto-complete toggle
       togAutoC = app.CreateToggle("AutoC", .216, null);
       autoOnCheck = app.LoadBoolean("AutoOn", false, "AutoOn.txt")
-      switch (autoOnCheck)
-      {
-         case true:
-            togAutoC.SetChecked(true);
-            break;
-         case false:
-            togAutoC.SetChecked(false);
-            break;
-      }
+      togAutoC.SetChecked(autoOnCheck);
       togAutoC.SetOnTouch(function(checked)
       {
-         this.checked = checked
-         switch (this.checked)
-         {
-            case true:
-               app.SaveBoolean("AutoOn", true, "AutoOn.txt");
-               break;
-            case false:
-               app.SaveBoolean("AutoOn", false, "AutoOn.txt");
-               break;
-         }
+         app.SaveBoolean("AutoOn", checked, "AutoOn.txt");
+         app.ShowPopup("Auto-Complete " + (checked ? "Enabled" : "Disabled"));
+      });
+
+      // Add auto-save toggle
+      togAutoSave = app.CreateToggle("AutoSave", .216, null);
+      togAutoSave.SetChecked(app.LoadBoolean("AutoSave", true, "AutoSave.txt"));
+      togAutoSave.SetOnTouch(function(checked)
+      {
+         app.SaveBoolean("AutoSave", checked, "AutoSave.txt");
+         app.ShowPopup("Auto-Save " + (checked ? "Enabled" : "Disabled"));
       });
       layDrawer = app.CreateLayout("Linear", "Vertical");
       layDrawer.AddChild(divE);
@@ -1640,6 +1617,13 @@ function clipBar()
       layDrawer.AddChild(btnDocs);
       layDrawer.AddChild(divH)
       layDrawer.AddChild(togAutoC);
+
+      // Add divider and auto-save toggle
+      var divAutoSave = app.CreateText("", .216, .0108);
+      divAutoSave.SetBackColor("#783873");
+      layDrawer.AddChild(divAutoSave);
+      layDrawer.AddChild(togAutoSave);
+
       layDrawer.AddChild(divJ);
       layDrawer.SetBackColor("#2c2b2a");
       return layDrawer
@@ -1649,10 +1633,10 @@ function clipBar()
 function spnTxtChange(item)
 {
    edtTxt.SetTextSize(item);
-} //end.spnTxtChange 
+} //end.spnTxtChange
 
 //------------------------------------------------------------------------
-// titleBar 
+// titleBar
 //------------------------------------------------------------------------
 function titleBar()
 {
@@ -1671,11 +1655,22 @@ function titleBar()
       titleBar.layTitle.SetGravity("Left");
       titleBar.scrTitle = app.CreateScroller(null, null, "NoScrollBars");
       titleBar.txtPath = app.CreateText(titleBar.textPath || "/");
+      // Create theme toggle button
+      titleBar.btnTheme = app.CreateButton("[fa-adjust]", 0.1, -1, "FontAwesome");
+      titleBar.btnTheme.SetTextSize(titleBar.titleTextSize);
+      titleBar.btnTheme.SetBackAlpha(0);
+      titleBar.btnTheme.SetOnTouch(function() {
+         toggleTheme();
+         app.ShowPopup("Theme changed");
+      });
+
+      // Add components to title bar
       titleBar.layA.AddChild(titleBar.txtTitle);
       titleBar.layB.AddChild(titleBar.txtPath);
       titleBar.layTitle.AddChild(titleBar.layA);
       titleBar.scrTitle.AddChild(titleBar.layB);
       titleBar.layTitle.AddChild(titleBar.scrTitle);
+      titleBar.layTitle.AddChild(titleBar.btnTheme);
       titleBar.layMain.AddChild(titleBar.layTitle);
       return titleBar.layMain
    } //titleBar.CreateTitleBar
@@ -1714,7 +1709,7 @@ function titleBar()
    {
       return titleBar.txtPath.GetText();
    } //end titleBar.GetPath
-} //end titleBar() 
+} //end titleBar()
 
 //------------------------------------------------------------------------
 // codeEditor
@@ -1738,6 +1733,39 @@ function codeEditor()
       edtTxt.SetOnDoubleTap(function()
       {
          app.OpenDrawer("right");
+      });
+
+      // Add auto-save functionality
+      var lastSaveTime = new Date().getTime();
+      var autoSaveInterval = 60000; // 1 minute
+
+      edtTxt.SetOnChange(function() {
+         // Check if auto-save is enabled
+         if (app.LoadBoolean("AutoSave", true, "AutoSave.txt")) {
+            var currentTime = new Date().getTime();
+            if (currentTime - lastSaveTime > autoSaveInterval) {
+               // Auto-save the file
+               var currentFile = app.LoadText("currentFile", null, "currentFile.txt");
+               if (currentFile && !app.LoadBoolean("isProtected", false, "isProtected.txt")) {
+                  try {
+                     if(!openFileOld) {
+                        filename = ("'" + currentFile + "'");
+                        app.SysExec("echo " + (JSON.stringify(edtTxt.GetText())) + " > " + filename + ";exit;", "su,log");
+                     } else {
+                        app.WriteFile(currentFile, edtTxt.GetText());
+                     }
+                     lastSaveTime = currentTime;
+                  } catch(e) {
+                     // Silent fail for auto-save
+                  }
+               }
+            }
+         }
+
+         // Call refilter if auto-complete is enabled
+         if (app.LoadBoolean("AutoOn", null, "AutoOn.txt")) {
+            refilter();
+         }
       });
       /*enable for key shortcut commandoutput*/
       /*edtTxt.SetOnChange(function (title) {*/
@@ -1768,15 +1796,15 @@ function keybd(shown)
       keybd.heightFinal = keybd.height * (codeEditor.h + keybd.sizeFactor)
       keybd.heightFinal -= app.GetKeyboardHeight()
       layM.codeEdit.SetSize(keybd.widthFinal, keybd.heightFinal, "px");
-      //debug 
+      //debug
    //   alert(keybd.widthFinal / (keybd.widthFinal - keybd.heightFinal))
  //     alert("width" + keybd.widthFinal + "\n" + "height" + keybd.heightFinal + "\n" + "factor" + keybd.sizeFactor)
 
    }
-} //end.keybd 
+} //end.keybd
 
 //------------------------------------------------------------------------
-// docs 
+// docs
 //------------------------------------------------------------------------
 function docs()
 {
@@ -1810,7 +1838,7 @@ function docs()
       lay.Animate("slidetotop");
       layBtn.Animate("slidetobottom");
    }
-} //end.docs 
+} //end.docs
 
 //-----------------------------------------------------------------------
 //drawers
@@ -1918,7 +1946,7 @@ function drawer()
       scrDRight.AddChild(cbar.init())
       app.AddDrawer(scrDRight, "right", .216, 0.009);
    }
-} //end.drawer 
+} //end.drawer
 
 //------------------------------------------------------------------------
 //editorBarA
@@ -1958,7 +1986,7 @@ function editorBarA()
                edtTxt.SetLanguage(".md");
                break;
             case "text":
-     
+
                 app.SaveBoolean("isProtected", false, "isProtected.txt");
                edtTxt.SetLanguage(".txt");
                break;
@@ -2039,7 +2067,7 @@ function editorBarA()
       editorBarA.edtBar.AddChild(spnSyntax);
       return editorBarA.edtBar;
    }
-} //end.editorBarA 
+} //end.editorBarA
 
 //------------------------------------------------------------------------
 //editorBarB
@@ -2139,10 +2167,10 @@ function editorBarB()
       editorBarB.edtBar.AddChild(btnRepeatFast);
       return editorBarB.edtBar
    }
-} //end.editorBarB 
+} //end.editorBarB
 
 //------------------------------------------------------------------------
-// extraKeyBar 
+// extraKeyBar
 //------------------------------------------------------------------------
 function extraKeyBar()
 {
@@ -2228,10 +2256,10 @@ function extraKeyBar()
       });
       extraKeyBar.dialog.Show();
    } //end extraKeyBar.KeyEditor
-} //end.extraKeyBar 
+} //end.extraKeyBar
 
 //------------------------------------------------------------------------
-// fileMgr 
+// fileMgr
 //------------------------------------------------------------------------
 function openFile()
 {
@@ -2242,7 +2270,7 @@ function osr()
    osr.url = function(txtIn)
    {
       osr.file = txtIn
-      //url check 
+      //url check
       var regexUrl = /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig
       var isURL = regexUrl.exec(osr.file)
       //alert(isURL!==null)
@@ -2335,7 +2363,7 @@ FolderLister.prototype.MakeList = function(options, textSize)
          FolderLister.SetPath(fileToOpen);
          FolderLister.update();
       }
-      // if a file, send path to file opening utility 
+      // if a file, send path to file opening utility
       /*
        else {
        if (app.FolderExists(fileToOpen))
@@ -2343,14 +2371,14 @@ FolderLister.prototype.MakeList = function(options, textSize)
           FolderLister.SetPath(path);
           FolderLister.update();
        }
-       
+
        else
        {
           app.CloseDrawer("left");
-          
+
           onFileChoose(fileToOpen)
           }
-          
+
        }
        */
    });
@@ -2359,8 +2387,8 @@ FolderLister.prototype.MakeList = function(options, textSize)
       FolderLister.SetPath("..")
       FolderLister.update();
    };
-   window.update = function()
-   {
+   // Define a global update function for refreshing the file list
+   FolderLister.globalUpdate = function() {
       FolderLister.update();
    };
    app.EnableBackKey(false);
@@ -2392,7 +2420,7 @@ FolderLister.prototype.GetPath = function()
    return this.path
 } //end.FolderLister.GetPath
 //------------------------------------------------------------------------
-// Touch 
+// Touch
 //------------------------------------------------------------------------
 function keys_OnTouch()
 {
@@ -2483,19 +2511,107 @@ function keys_OnTouch()
             optSaveC = app.CreateButton(" [fa-file] \n Save As ", -1, null, "FontAwesome");
             optSaveC.SetOnTouch(function()
             {
-               saveaspath = app.CreateTextEdit("/sdcard/");
-               laysaveas = app.CreateLayout("Linear", "Horizontal");
-               laysaveas.AddChild(saveaspath);
-               dlgsaveas = app.CreateDialog("", "NoDim");
-               btnsaveasdlg = app.CreateButton("save to path below");
-               laysaveas.AddChild(btnsaveasdlg);
-               dlgsaveas.AddLayout(laysaveas);
-               btnsaveasdlg.SetOnTouch(function()
+               // Create improved Save As dialog
+               dlgSaveAs = app.CreateDialog("Save As", "NoDim");
+               laySaveAs = app.CreateLayout("Linear", "Vertical");
+               laySaveAs.SetPadding(0.02, 0.02, 0.02, 0.02);
+
+               // Add path label
+               var txtPath = app.CreateText("File Path:", 0.8, -1);
+               txtPath.SetTextColor("#FFFFFF");
+               laySaveAs.AddChild(txtPath);
+
+               // Current file path as default
+               var currentFile = app.LoadText("currentFile", null, "currentFile.txt");
+               saveaspath = app.CreateTextEdit(currentFile, 0.8, -1);
+               laySaveAs.AddChild(saveaspath);
+
+               // Add file type selection
+               var txtType = app.CreateText("File Type:", 0.8, -1);
+               txtType.SetTextColor("#FFFFFF");
+               laySaveAs.AddChild(txtType);
+
+               var fileTypes = "JavaScript,HTML,CSS,Text,Markdown,Python,JSON";
+               var spnFileType = app.CreateSpinner(fileTypes, 0.8);
+
+               // Set default type based on file extension
+               if(currentFile.endsWith(".js")) spnFileType.SelectItem("JavaScript");
+               else if(currentFile.endsWith(".html")) spnFileType.SelectItem("HTML");
+               else if(currentFile.endsWith(".css")) spnFileType.SelectItem("CSS");
+               else if(currentFile.endsWith(".md")) spnFileType.SelectItem("Markdown");
+               else if(currentFile.endsWith(".py")) spnFileType.SelectItem("Python");
+               else if(currentFile.endsWith(".json")) spnFileType.SelectItem("JSON");
+               else spnFileType.SelectItem("Text");
+
+               laySaveAs.AddChild(spnFileType);
+
+               // Button layout
+               var btnLayout = app.CreateLayout("Linear", "Horizontal");
+               var btnSave = app.CreateButton("Save", 0.38);
+               var btnCancel = app.CreateButton("Cancel", 0.38);
+
+               btnSave.SetOnTouch(function()
                {
-                  var pathSaveAs = saveaspath.GetText();
-                  app.ShowPopup("(will) Save to path :" + saveaspath.GetText());
+                  app.ShowProgress("Saving file...");
+
+                  try {
+                     var file = saveaspath.GetText();
+
+                     // Add extension if needed based on file type
+                     var selectedType = spnFileType.GetText();
+                     if(selectedType === "JavaScript" && !file.endsWith(".js")) file += ".js";
+                     else if(selectedType === "HTML" && !file.endsWith(".html")) file += ".html";
+                     else if(selectedType === "CSS" && !file.endsWith(".css")) file += ".css";
+                     else if(selectedType === "Markdown" && !file.endsWith(".md")) file += ".md";
+                     else if(selectedType === "Python" && !file.endsWith(".py")) file += ".py";
+                     else if(selectedType === "JSON" && !file.endsWith(".json")) file += ".json";
+
+                     // Save the file
+                     if(!openFileOld) {
+                        filename = ("'" + file + "'");
+                        outsavefile = app.SysExec("echo " + (JSON.stringify(edtTxt.GetText())) + " > " + filename + ";exit;", "su,log");
+                     } else {
+                        app.WriteFile(file, edtTxt.GetText());
+                     }
+
+                     // Update current file
+                     app.SaveText("currentFile", file, "currentFile.txt");
+
+                     // Update syntax highlighting
+                     if(file.endsWith(".js")) spnSyntax.SetText("javascript");
+                     else if(file.endsWith(".html")) spnSyntax.SetText("html");
+                     else if(file.endsWith(".md")) spnSyntax.SetText("markdown");
+                     else if(file.endsWith(".py")) spnSyntax.SetText("python");
+
+                     // Update recent files list
+                     listRecents.AddItem(file);
+                     app.SaveText("listRecents", listRecents.GetList(","), "listRecents.txt");
+
+                     // Update title bar
+                     titleBar.SetPath(file);
+                     drawer.SetPath(file);
+
+                     app.HideProgress();
+                     dlgSaveAs.Dismiss();
+                     app.ShowPopup("Saved: " + file);
+                  }
+                  catch(e) {
+                     app.HideProgress();
+                     app.Alert("Save Error", "Could not save file: " + e);
+                  }
                });
-               dlgsaveas.Show();
+
+               btnCancel.SetOnTouch(function()
+               {
+                  dlgSaveAs.Dismiss();
+               });
+
+               btnLayout.AddChild(btnSave);
+               btnLayout.AddChild(btnCancel);
+               laySaveAs.AddChild(btnLayout);
+
+               dlgSaveAs.AddLayout(laySaveAs);
+               dlgSaveAs.Show();
             });
             layDlgSave.AddChild(optSaveA);
             layDlgSave.AddChild(optSaveB);
@@ -2530,25 +2646,34 @@ function keys_OnLTouch()
       case "[fa-save]":
          if (!(app.LoadBoolean("isProtected", false, "isProtected.txt")))
          {
+            // Show saving indicator
+            app.ShowProgress("Saving file...");
+
             var file = app.LoadText("currentFile", null, "currentFile.txt");
-           // app.WriteFile(file, app.ReadFile(file));
-            //app.WriteFile(file, edtTxt.GetText());
-            //alert(file)
-            if(!openFileOld){
-            
-            filename = ("'" + file + "'")
-         //   app.WriteFile(  )
-        //    outsavefile = app.SysExec( "echo " + (JSON.stringify(edtTxt.GetText())) + " > " + filename + " " +  ";exit;", "su,log" )
-                 outsavefile = app.SysExec( "echo " + (JSON.stringify(edtTxt.GetText())) + " > " + filename + ";exit;", "su,log" )
-              //  res =  app.SysExec( "printf " + outsavefile + ";exit;", "su,log")
+            try {
+               if(!openFileOld) {
+                  // Root method for saving
+                  filename = ("'" + file + "'");
+                  outsavefile = app.SysExec("echo " + (JSON.stringify(edtTxt.GetText())) + " > " + filename + ";exit;", "su,log");
+               }
+               else {
+                  // Standard method for saving
+                  app.WriteFile(file, edtTxt.GetText());
+               }
+
+               // Create backup copy
+               var backupDir = app.LoadText("pathDat", "/sdcard/Protoeditor", "pathDat.txt") + "/backups/";
+               if(!app.FolderExists(backupDir)) app.MakeFolder(backupDir);
+               var backupFile = backupDir + app.GetFileName(file) + "." + app.GetTimeStamp() + ".bak";
+               app.WriteFile(backupFile, edtTxt.GetText());
+
+               app.HideProgress();
+               app.ShowPopup("Saved: " + file);
             }
-            else
-            {
-            app.WriteFile(file, app.ReadFile(file));
-            app.WriteFile(file, edtTxt.GetText());
-                //edtTxt.SetText(outsavefile)
-           } 
-            app.ShowPopup("Saved:" + " \n" + file);
+            catch(e) {
+               app.HideProgress();
+               app.Alert("Save Error", "Could not save file: " + e);
+            }
          }
          break;
       case "[fa-play]":
@@ -2557,12 +2682,11 @@ function keys_OnLTouch()
          break;
       case "[fa-exchange]":
          edtTxt.ReplaceAll(searchF.GetText(), searchR.GetText());
-         break
-         return;
+         break;
    } //end.switch
 } //end.keys_OnLTouch
 //------------------------------------------------------------------------
-// picker 
+// picker
 //------------------------------------------------------------------------
 function picker()
 {
@@ -2614,7 +2738,9 @@ function picker()
             app.WriteFile(newFP, edtTxt.GetText());
             app.ShowPopup("Created File: " + newFP);
             /*refreshes file browser list @ current path*/
-            window.update()
+            if (typeof FolderLister !== 'undefined' && FolderLister.globalUpdate) {
+                FolderLister.globalUpdate();
+            }
             app.SaveText("currentFile", newFP, "currentFile.txt");
             /*debug*/ //app.ShowPopup("new cf is " + app.LoadText("currentFile", null, "currentFile.txt"))
             drawer.SetPath(newFP);
@@ -2719,7 +2845,9 @@ function picker()
             app.MakeFolder(edt.GetText() + "/" + txtFileNameFC.GetText());
             alert("Created Folder:" + edt.GetText() + "/" + txtFileNameFC.GetText());
             /*refreshes file browser list @ current path*/
-            window.update()
+            if (typeof FolderLister !== 'undefined' && FolderLister.globalUpdate) {
+                FolderLister.globalUpdate();
+            }
          }
       });
       picker.layFCBar.AddChild(picker.btnFldrNewFC);
@@ -2736,7 +2864,7 @@ function picker()
       spnFileType.SetOnChange(function(item)
       {
          //to strip off ".ext" from filename
-         //var tftCurrent = txtFileType.GetText().substring(txtFileType.GetText().lastIndexOf(".")+1); 
+         //var tftCurrent = txtFileType.GetText().substring(txtFileType.GetText().lastIndexOf(".")+1);
          txtFileType.SetText(item);
       });
       barnf.AddChild(txtFileType);
@@ -2761,7 +2889,9 @@ function picker()
             {
                app.ShowPopup("Deleted: " + pathDelete);
                app.DeleteFolder(pathDelete);
-               window.update()
+               if (typeof FolderLister !== 'undefined' && FolderLister.globalUpdate) {
+                   FolderLister.globalUpdate();
+               }
             }
             if (item == "No")
             {
@@ -2773,11 +2903,11 @@ function picker()
       picker.lay.AddChild(list);
       return picker.lay
    } //end picker.init
-} //end.picker 
+} //end.picker
 
 
 //------------------------------------------------------------------------
-// mdParser 
+// mdParser
 //------------------------------------------------------------------------
 function mdParser(title, bodyTxt)
 {
@@ -2796,10 +2926,10 @@ function mdParser(title, bodyTxt)
       c += '</html>';
       return a + this.title + b + this.bodyTxt + c;
    } //end mdParser.GetHtml
-} //end.mdParser 
+} //end.mdParser
 
 //------------------------------------------------------------------------
-// multiEdit 
+// multiEdit
 //------------------------------------------------------------------------
 function multiEdit()
 {
@@ -2856,7 +2986,7 @@ function multiEdit()
       layA.AddChild(edtB);
       return layA
    }
-} //end.multiEdit 
+} //end.multiEdit
 
 
 //Tabs object.
@@ -2971,10 +3101,10 @@ function _Tabs_OnTouch(ev)
       txt.tabs.lay.ShowTab(txt.GetText());
       app.SetDebugEnabled(true);
    }
-} //end.TabsOnTouch 
+} //end.TabsOnTouch
 
 //-----------------------------------------------------------------------
-// refilter 
+// refilter
 //------------------------------------------------------------------------
 function refilter()
 {
@@ -3029,13 +3159,14 @@ function refilter()
    else
    {}
 } //end.refilter
-function findableButton(array, text, width, height, options)
+function findableButton(array, text)
 {
+   // Create button with text
    var btn = app.CreateList(text, null, null, "")
    btn.SetTextSize(12.6)
    btn.SetOnTouch(function(title)
    {
-      var edtTmp = edtTxt.GetText().substring(edtTxt.GetText().lastIndexOf(".") + 1, edtTxt.GetCursorPos())
+      // Get text from cursor position to line start to check context
       var txttmp = edtTxt.GetText().substring(edtTxt.GetCursorPos(), edtTxt.GetLineStart(edtTxt.GetCursorLine()))
       if (txttmp.indexOf('\"') > -1)
       {
@@ -3097,10 +3228,10 @@ function filterButtons(array, filter)
          btns.Gone()
       }
    }
-} //end.filterButtons 
+} //end.filterButtons
 
 //------------------------------------------------------------------------
-// run 
+// run
 //------------------------------------------------------------------------
 function run(syntax)
 {
@@ -3117,22 +3248,21 @@ function run(syntax)
          webd.Show();
          break;
       case "quicksand":
-         var txt = edtTxt.GetText();
+         // Create temporary file and run it
          var fileTmp = app.LoadText("pathDat", null, "pathDat.txt") + "/" + "tmp.js"
          app.WriteFile(fileTmp, edtTxt.GetText());
          StartFile(fileTmp);
          break;
       case "javascript":
-         var txt = edtTxt.GetText();
+         // Run JavaScript file
          var fileJs = app.LoadText("currentFile", null, "currentFile.txt");
          if (!app.LoadBoolean("isDebug"))
          {
-            //app.StartApp(fileJs);
             StartFile(fileJs);
          }
-         if (app.LoadBoolean("isDebug"))
+         else if (app.LoadBoolean("isDebug"))
          {
-            //app.StartApp(fileJs, "debug,overlay");
+            // Run with debug mode if debug is enabled
             StartFile(fileJs);
          }
          break;
@@ -3141,14 +3271,14 @@ function run(syntax)
          app.OpenFile(filePy, ".py");
          break;
       case "html":
-         var txt = edtTxt.GetText();
+         // Load HTML in web viewer
          web.ClearHistory();
          web.LoadHtml(edtTxt.GetText());
          webd.Show()
          break;
       case "php":
          app.SaveBoolean("isProtected", false, "isProtected.txt");
-         var txt = edtTxt.GetText();
+         // Load PHP in web viewer
          web.ClearHistory();
          web.LoadHtml(edtTxt.GetText());
          webd.Show()
@@ -3175,7 +3305,7 @@ function run(syntax)
          break;
    } //end switch
    return;
-} //end.run 
+} //end.run
 
 
 
@@ -3204,12 +3334,26 @@ function StartFile(fname)
 }
 
 //------------------------------------------------------------------------
-// setTheme 
+// setTheme
 //------------------------------------------------------------------------
-function setTheme()
+function setTheme(themeName)
 {
-   // app.SetStatusBarColor( "#783873" );
-   // app.SetNavBarColor( "#783873" );
+   // Get saved theme or use default
+   var currentTheme = themeName || app.LoadText("currentTheme", "Dark", "currentTheme.txt");
+
+   if (currentTheme === "Light") {
+      setLightTheme();
+   } else {
+      setDarkTheme();
+   }
+
+   // Save current theme
+   app.SaveText("currentTheme", currentTheme, "currentTheme.txt");
+} //end.setTheme
+
+// Dark theme function
+function setDarkTheme()
+{
    theme = app.CreateTheme("Dark");
    theme.SetDimBehind(false);
    theme.SetButtonStyle("#353535", "#161616", 2, "#2c2b2a", 0, 1, "#978873");
@@ -3223,4 +3367,47 @@ function setTheme()
    theme.SetDialogBtnColor("#2c2b2a");
    theme.SetDialogBtnTxtColor("white");
    app.SetTheme(theme);
-} //end.setTheme 
+
+   // Set editor colors
+   if (typeof edtTxt !== 'undefined') {
+      edtTxt.SetColorScheme("Dark");
+      edtTxt.SetBackColor("#783873");
+      edtTxt.SetBackAlpha(.09);
+   }
+}
+
+// Light theme function
+function setLightTheme()
+{
+   theme = app.CreateTheme("Light");
+   theme.SetDimBehind(false);
+   theme.SetButtonStyle("#e0e0e0", "#c0c0c0", 2, "#f0f0f0", 0, 1, "#4a4a4a");
+   theme.AdjustColor(0, 0, 0);
+   theme.SetBtnTextColor("#333333");
+   theme.SetButtonOptions("custom");
+   theme.SetBackColor("#f0f0f0");
+   theme.SetCheckBoxOptions("light");
+   theme.SetTextEditOptions("NoDim");
+   theme.SetDialogColor("#f0f0f0");
+   theme.SetDialogBtnColor("#e0e0e0");
+   theme.SetDialogBtnTxtColor("#333333");
+   app.SetTheme(theme);
+
+   // Set editor colors
+   if (typeof edtTxt !== 'undefined') {
+      edtTxt.SetColorScheme("Light");
+      edtTxt.SetBackColor("#e0e0e0");
+      edtTxt.SetBackAlpha(.09);
+   }
+}
+
+// Toggle between light and dark themes
+function toggleTheme()
+{
+   var currentTheme = app.LoadText("currentTheme", "Dark", "currentTheme.txt");
+   if (currentTheme === "Dark") {
+      setTheme("Light");
+   } else {
+      setTheme("Dark");
+   }
+}
