@@ -1,0 +1,103 @@
+//in folder lister list.setontouch:
+
+            list.SetOnLongTouch(function(title) {
+               var pathDelete = edt.GetText() + "/" + title
+               //
+               tmplst  = app.CreateList("",.63,-1,'FontAwesome');
+ 
+               tmplst.InsertItem( 0,"[fa-trash] Delete" , null,  "d"  );
+                  tmplst.InsertItem( 0,"[fa-i-cursor] Rename", null, "r" );
+                     tmplst.InsertItem( 0, "[fa-thumb-tack] Add to Bookmarks" , null, "b");
+        
+       //        tmplst.SetFontFile( "Misc/line-awesome.ttf");
+                      dlgg = app.CreateDialog("", "notitle")
+               
+      
+                      dlggtitle = app.CreateButton( "Menu" , .63,-1);
+dlggtitle.SetEnabled( false );
+                     
+                     tmplay = app.CreateLayout("linear","Vertical")
+         
+                tmplay.AddChild( dlggtitle );
+          
+          
+                     tmplay.AddChild( tmplst );
+                 
+                      dlgg.AddLayout( tmplay);
+                    // "[fa-trash] Delete ,[fa-i-cursor] Rename ,[fa-thumb-tack] Add to Bookmarks ","notitle")
+         
+//                     dlg.SetBackColor( "#2c2b2a" );
+//   dlg.SetTextColor( "white" );
+                tmplst.SetOnTouch( dlgt)
+                 dlgg.Show();
+               })
+ 
+            picker.lay.AddChild(list);
+            return picker.lay
+         } //end picker.init
+
+  
+    
+        function dlgt(title,body,image)
+{
+              tmplst2  = app.CreateList("Yes,No",-1,-1,'FontAwesome' );
+                    //        tmplst.SetFontFile( "Misc/line-awesome.ttf");
+                      dlgg2 = app.CreateDialog("", "notitle")
+                      
+                      dlggtitle2 = app.CreateList( "Are you sure?" , .63,-1);
+ dlggtitle2.SetEnabled( false );
+                     tmplay2 = app.CreateLayout( "Linear", "Vertical");
+                 
+                            tmplay2.AddChild( dlggtitle2 );
+                     tmplay2.AddChild( tmplst2 );
+                      dlgg2.AddLayout( tmplay2);
+                    // "[fa-trash] Delete ,[fa-i-cursor] Rename ,[fa-thumb-tack] Add to Bookmarks ","notitle")
+         
+//                     dlg.SetBackColor( "#2c2b2a" );
+//   dlg.SetTextColor( "white" );
+                tmplst2.SetOnTouch( dlgt2)
+      
+              
+  this.itm = image
+switch (this.itm){
+
+ case "d" :
+  dlgg2.Show();
+break
+
+case "r" :
+ app.ShowPopup( "Rename?" );
+break
+
+  case "b" :
+  app.ShowPopup( "Bookmark Added" );
+  break;
+  }//end.switch 
+}
+         function dlgt2 (title) {
+         
+             /*  
+                                    if (item == "Yes") {
+             
+                       
+                  app.ShowPopup("Deleted: " + pathDelete);
+                   //app.DeleteFolder(pathDelete)
+                    window.update();
+                     }
+                  if (item =  "No"){
+                  app.ShowPopup("no");
+                   }
+                   */
+     this.index = title
+switch (this.index){
+
+ case "Yes" :
+      app.ShowPopup("Deleted: " )//+ pathDelete); 
+break
+
+case "No" :
+app.ShowPopup( "no" );
+break
+
+   }//end.switch 
+              }

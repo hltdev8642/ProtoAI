@@ -1,0 +1,21 @@
+a
+b
+c
+123
+abc
+cba
+321
+c
+b
+a
+= function (){}
+function (){}
+function OnStart (){}
+function OnConfig () {}
+for (var in ){}
+for(var  =  ;   ){}
+if () {}
+else {}
+while{}
+do{}while()
+var   = new  ();

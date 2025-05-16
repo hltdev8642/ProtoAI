@@ -1,0 +1,14 @@
+ this.GetBar = function(editor) {
+       this.editor = editor
+       var keys = Bar.keys;
+       var keysplit = keys.split(/\r\n|\r|\n/gm)
+       for (i = 0; i < keysplit.length; i++) {
+          var ch = keysplit[i]
+          btn = app.CreateList(ch)
+          btn.SetColumnWidths(0, 1 / 3, 1 / 3, "center")
+             //('\<code color = red\>' + ch.replace(/\s/gm, '') + '\<\/code\>',-1,-1,"Html,Horiz");
+          btn.SetTextSize(Bar.textSize);
+          btn.SetOnLongTouch(function(title, body, index) {
+                   var s = body
+                   editor.InsertText(s)
+                      //(s.substring(6,s.length-7));

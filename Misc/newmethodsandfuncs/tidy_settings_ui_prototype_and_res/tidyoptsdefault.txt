@@ -1,0 +1,33 @@
+ {
+var indent_size  =  app.CreateSpinner( "indent_size,0,1,2,3,4,5,6,7,8,9", -1,-1,"");
+
+var indent_char =  app.CreateTextEdit( " ", -1,-1,"nospell );
+indent_char.SetHint( "indent_char" );
+
+var indent_level =  app.CreateSpinner( "indent_level,0,1,2,3,4,5,6,7,8,9", -1,-1,"");
+
+var indent_with_tabs =  app.CreateCheckBox( "indent_with_tabs", -1, -1, "" ); 
+
+var preserve_newlines =   app.CreateCheckBox( "preserve_newlines", -1, -1, "" );
+
+var max_preserve_newlines =   app.CreateSpinner( "max_preserve_newlines,0,1,2,3,4,5,6,7,8,9", -1,-1,"");
+
+var jslint_happy =  app.CreateCheckBox( "jslint_happy", -1, -1, "" );
+ 
+var space_after_named_function =  app.CreateCheckBox( "space_after_named_function", -1, -1, "" );
+
+var space_after_anon_function =  space_after_anon_function
+
+var brace_style =  app.CreateSpinner( "brace_style,collapse,expand,end-expand,none,preserve-inline", -1,-1,"");
+var keep_array_indentation =  app.CreateCheckBox("", -1,-1, "");
+var keep_function_indentation =  app.CreateCheckBox("", -1,-1, "");
+var space_before_conditional =  app.CreateCheckBox("", -1,-1, "");
+var break_chained_methods =  app.CreateCheckBox("", -1,-1, "");
+var eval_code =  app.CreateCheckBox("eval_code", -1,-1, "");
+var unescape_strings =  app.CreateCheckBox("unescape_strings", -1,-1, "");
+var wrap_line_length =   app.CreateSpinner( "wrap_line_length,0,1,2,3,4,5,6,7,8,9", -1,-1,"");
+
+            }
+            
+            
+            

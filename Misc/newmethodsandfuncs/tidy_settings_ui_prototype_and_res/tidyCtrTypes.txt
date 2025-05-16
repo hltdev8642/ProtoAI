@@ -1,0 +1,1 @@
+spinner,textedit,spinner,checkbox,checkbox,spinner,checkbox,checkbox,spinner,checkbox,checkbox,checkbox,checkbox,checkbox,checkbox,spinner
